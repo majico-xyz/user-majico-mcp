@@ -1,0 +1,72 @@
+{
+  "name": "user-majico-mcp",
+  "version": "0.6.0",
+  "description": "MCP server for Majico.xyz: brand guidelines, design tokens, studio canvas (Pro projects).",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/majico-xyz/majico.xyz.git",
+    "directory": "packages/user-majico-mcp"
+  },
+  "homepage": "https://github.com/majico-xyz/majico.xyz/tree/main/packages/user-majico-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/majico-xyz/majico.xyz/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "user-majico-mcp": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http-handler.d.ts",
+      "import": "./dist/http-handler.js"
+    },
+    "./auth-prompt": {
+      "types": "./dist/auth-prompt.d.ts",
+      "import": "./dist/auth-prompt.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm run build && npm test"
+  },
+  "keywords": [
+    "mcp",
+    "majico",
+    "brand",
+    "design-tokens"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "sharp": "^0.34.5",
+    "@majico/sdk": "^1.0.1"
+  },
+  "peerDependencies": {
+    "@majico/sdk": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@majico/sdk": "^1.0.1",
+    "@types/node": "^22.19.0",
+    "typescript": "^5.9.0",
+    "vitest": "4.1.6"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
