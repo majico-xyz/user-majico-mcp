@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   prepareSvgForChatPreview,
+  prepareSvgMarkupForRaster,
   svgPreviewBlock,
 } from "./svg-preview-block.js";
 
@@ -10,18 +11,23 @@ const SAMPLE_SVG =
 const BOOK_OPEN_SVG =
   '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M8 8 L8 40 L24 36 L24 12 Z M24 12 L24 36 L40 40 L40 8 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 
-describe("prepareSvgForChatPreview", () => {
-  it("replaces currentColor and pads on a light background", () => {
-    const prepared = prepareSvgForChatPreview(BOOK_OPEN_SVG);
-    expect(prepared).toContain("#f4f4f5");
+const YIELDSCOPE_SVG =
+  '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="16"/><path d="M24 8l-12 16h24z"/></g></svg>';
+
+describe("prepareSvgMarkupForRaster", () => {
+  it("replaces currentColor and does not wrap in a second svg", () => {
+    const prepared = prepareSvgMarkupForRaster(BOOK_OPEN_SVG);
     expect(prepared).toContain("#111111");
     expect(prepared).not.toMatch(/currentColor/i);
-    // Nested <svg> breaks librsvg on Linux — geometry must be unwrapped.
     expect(prepared.match(/<svg\b/gi)?.length ?? 0).toBe(1);
-    // Turbopack previously stripped `">` before `<rect`, yielding
-    // `viewBox="0 0 144 144<rect` (librsvg column ~99). Guard the join.
-    expect(prepared).toContain('viewBox="0 0 144 144"><rect');
-    expect(prepared).toContain('fill="#f4f4f5"/><g transform=');
+    // Must not emit the Turbopack-corrupted wrapper pattern.
+    expect(prepared).not.toContain("144<rect");
+  });
+
+  it("prepareSvgForChatPreview aliases raster prep", () => {
+    expect(prepareSvgForChatPreview(BOOK_OPEN_SVG)).toBe(
+      prepareSvgMarkupForRaster(BOOK_OPEN_SVG)
+    );
   });
 });
 
@@ -43,7 +49,13 @@ describe("svgPreviewBlock", () => {
     expect(block.type).toBe("image");
     if (block.type !== "image") return;
     const bytes = Buffer.from(block.data, "base64");
-    // Light-bg + dark stroke should be larger than near-empty black square (~300B).
     expect(bytes.length).toBeGreaterThan(400);
+  });
+
+  it("rasterizes YieldScope circle+triangle mark", async () => {
+    const block = await svgPreviewBlock(YIELDSCOPE_SVG);
+    expect(block.type).toBe("image");
+    if (block.type !== "image") return;
+    expect(Buffer.from(block.data, "base64").length).toBeGreaterThan(400);
   });
 });

@@ -3,7 +3,7 @@ import type { McpContentBlock } from "./present-types.js";
 
 const PREVIEW_PAD = 24;
 const PREVIEW_MARK_SIZE = 96;
-const PREVIEW_BG = "#f4f4f5";
+const PREVIEW_BG = { r: 0xf4, g: 0xf4, b: 0xf5, alpha: 1 };
 const PREVIEW_FG = "#111111";
 
 const IMAGE_ANNOTATIONS = {
@@ -12,68 +12,66 @@ const IMAGE_ANNOTATIONS = {
 };
 
 /**
- * `>` as a runtime char so Turbopack/SWC cannot constant-fold adjacent
- * template pieces into a single HTML-looking literal and strip `">` before
- * the next `<` (seen in Next production chunks as
- * `viewBox="0 0 144 144<rect` — which breaks librsvg at column ~99).
+ * Ink currentColor and ensure sharp has a root xmlns + explicit size.
+ * Does not wrap in a second SVG — Turbopack/SWC has corrupted HTML-looking
+ * `">` sequences in constant-folded template strings in Next production chunks
+ * (e.g. `viewBox="0 0 144 144<rect`), which breaks librsvg.
  */
-function gt(): string {
-  return String.fromCharCode(0x3e);
-}
-
-/**
- * Strip the outer <svg>…</svg> wrapper so we can embed mark geometry in a
- * padded preview canvas. Nested <svg> is unreliable under librsvg/sharp on
- * Linux (staging) and often yields empty / solid tiles.
- */
-export function extractSvgInnerMarkup(svg: string): string {
-  const trimmed = svg.trim();
-  const open = trimmed.match(/<svg\b[^>]*>/i);
-  if (!open || open.index == null) return trimmed;
-  const start = open.index + open[0].length;
-  const close = trimmed.toLowerCase().lastIndexOf("</svg>");
-  if (close <= start) return trimmed;
-  return trimmed.slice(start, close).trim();
-}
-
-/**
- * Prepare SVG for chat PNG rasterization:
- * - replace currentColor (invisible on dark Cursor chrome / transparent PNG)
- * - unwrap nested svg (librsvg-safe)
- * - pad on a light background so outline marks stay visible
- */
-export function prepareSvgForChatPreview(svg: string): string {
-  const inked = svg
+export function prepareSvgMarkupForRaster(svg: string): string {
+  let markup = svg
+    .trim()
     .replace(/\bcurrentColor\b/gi, PREVIEW_FG)
     .replace(/\bcurrentcolour\b/gi, PREVIEW_FG);
 
-  const inner = extractSvgInnerMarkup(inked);
-  const size = PREVIEW_MARK_SIZE + PREVIEW_PAD * 2;
-  const scale = PREVIEW_MARK_SIZE / 48;
-  const close = gt();
+  if (!/\sxmlns=/i.test(markup)) {
+    markup = markup.replace(
+      /<svg\b/i,
+      '<svg xmlns="http://www.w3.org/2000/svg"'
+    );
+  }
+  if (!/\swidth=/i.test(markup)) {
+    markup = markup.replace(
+      /<svg\b([^>]*)>/i,
+      `<svg$1 width="${PREVIEW_MARK_SIZE}" height="${PREVIEW_MARK_SIZE}">`
+    );
+  }
+  return markup;
+}
 
-  // Keep `>` on a runtime boundary (see gt()) — do not write `">` immediately
-  // before another `<` inside one constant-foldable template literal.
-  return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"`,
-    close,
-    `<rect width="${size}" height="${size}" fill="${PREVIEW_BG}"/`,
-    close,
-    `<g transform="translate(${PREVIEW_PAD} ${PREVIEW_PAD}) scale(${scale})"`,
-    close,
-    inner,
-    `</g></svg>`,
-  ].join("");
+/** @deprecated Use prepareSvgMarkupForRaster — kept for call-site compatibility. */
+export function prepareSvgForChatPreview(svg: string): string {
+  return prepareSvgMarkupForRaster(svg);
 }
 
 /**
  * Rasterize inline SVG to a PNG MCP image block (Cursor renders PNG, not SVG).
+ * Pads on a light canvas via sharp.composite (no wrapper SVG string).
  * Soft-fails to a text note when sharp cannot rasterize.
  */
 export async function svgPreviewBlock(svg: string): Promise<McpContentBlock> {
   try {
-    const prepared = prepareSvgForChatPreview(svg);
-    const png = await sharp(Buffer.from(prepared, "utf8")).png().toBuffer();
+    const markup = prepareSvgMarkupForRaster(svg);
+    const markPng = await sharp(Buffer.from(markup, "utf8"))
+      .resize(PREVIEW_MARK_SIZE, PREVIEW_MARK_SIZE, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
+
+    const size = PREVIEW_MARK_SIZE + PREVIEW_PAD * 2;
+    const png = await sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 4,
+        background: PREVIEW_BG,
+      },
+    })
+      .composite([{ input: markPng, left: PREVIEW_PAD, top: PREVIEW_PAD }])
+      .png()
+      .toBuffer();
+
     return {
       type: "image",
       data: png.toString("base64"),
