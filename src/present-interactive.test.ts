@@ -15,6 +15,7 @@ import {
   pickPaletteOptionsForDisplay,
   presentLogoCandidates,
   presentPaletteOptions,
+  rewritePreviewUrlOntoPublicBase,
   scoreReeldemoPaletteMatch,
 } from "./present-interactive.js";
 
@@ -102,6 +103,50 @@ describe("presentLogoCandidates", () => {
     expect(
       content.some((b) => b.type === "text" && b.text.includes("abc-1"))
     ).toBe(true);
+  });
+
+  it("rewrites bind-all previewPickerUrl onto the session public base", async () => {
+    const content = await presentLogoCandidates(
+      {
+        selectedLogoTemplateId: "book-open",
+        logoSvg: SAMPLE_SVG,
+        logoFavorites: [],
+        shortlistCount: 1,
+        previewToken: "tok",
+        previewPickerUrl:
+          "http://0.0.0.0:3000/mcp/preview/logo-picker?project=x&cursor=1&t=tok",
+        candidates: [
+          {
+            id: "template:book-open",
+            kind: "template",
+            templateId: "book-open",
+            previewSvg: SAMPLE_SVG,
+          },
+        ],
+      },
+      CTX
+    );
+
+    const summary = content[0];
+    expect(summary?.type).toBe("text");
+    if (summary?.type !== "text") return;
+    expect(summary.text).not.toContain("0.0.0.0");
+    expect(summary.text).toContain(
+      "https://majico.d3bu7.com/mcp/preview/logo-picker"
+    );
+  });
+});
+
+describe("rewritePreviewUrlOntoPublicBase", () => {
+  it("rewrites 0.0.0.0 hosts onto the public base", () => {
+    expect(
+      rewritePreviewUrlOntoPublicBase(
+        "http://0.0.0.0:3000/api/mcp/projects/x/logos/y/preview",
+        "https://majico.d3bu7.com"
+      )
+    ).toBe(
+      "https://majico.d3bu7.com/api/mcp/projects/x/logos/y/preview"
+    );
   });
 });
 

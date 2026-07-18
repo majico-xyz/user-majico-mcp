@@ -244,6 +244,56 @@ function normalizeBase(url: string): string {
   return url.replace(/\/$/, "");
 }
 
+/** Bind-all / non-browser hosts must never appear in chat preview links. */
+function isNonBrowserHost(hostname: string): boolean {
+  return (
+    hostname === "0.0.0.0" ||
+    hostname === "::" ||
+    hostname === "[::]"
+  );
+}
+
+function isBrowserReachableOrigin(url: string | undefined | null): boolean {
+  if (!url?.trim()) return false;
+  try {
+    return !isNonBrowserHost(new URL(url.trim()).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Prefer API-provided picker URL when it is browser-reachable; otherwise rebuild
+ * from the session public base (staging k8s often mints http://0.0.0.0:3000/…).
+ */
+function resolvePickerUrl(
+  fromApi: string | null | undefined,
+  rebuilt: string
+): string {
+  const api = fromApi?.trim();
+  if (api && isBrowserReachableOrigin(api)) return api;
+  return rebuilt;
+}
+
+/**
+ * Rewrite absolute URLs whose host is bind-all onto the session public base,
+ * preserving path + query.
+ */
+export function rewritePreviewUrlOntoPublicBase(
+  url: string,
+  publicBaseUrl: string
+): string {
+  if (!url?.trim() || !isBrowserReachableOrigin(publicBaseUrl)) return url;
+  try {
+    const parsed = new URL(url);
+    if (!isNonBrowserHost(parsed.hostname)) return url;
+    const base = new URL(normalizeBase(publicBaseUrl));
+    return `${base.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return url;
+  }
+}
+
 const PLAN_MODE_PREVIEW_NOTE = [
   "**Cursor Plan mode:** inline previews often do not render — open the browser picker link below.",
   "**Agent mode:** PNG preview cards should appear below each option when supported.",
@@ -336,9 +386,10 @@ export async function presentLogoCandidates(
 ): Promise<McpContentBlock[]> {
   const previewToken = data.previewToken ?? null;
   const projectId = data.projectId?.trim() || ctx.projectId;
-  const previewPickerUrl =
-    data.previewPickerUrl?.trim() ||
-    logoPickerUrl(ctx.publicBaseUrl, projectId, previewToken);
+  const previewPickerUrl = resolvePickerUrl(
+    data.previewPickerUrl,
+    logoPickerUrl(ctx.publicBaseUrl, projectId, previewToken)
+  );
   const browserLogoUrl = previewPickerUrl;
   const candidates = (data.candidates ?? []).map((c, i) => ({
     index: i + 1,
@@ -346,12 +397,13 @@ export async function presentLogoCandidates(
     kind: c.kind,
     templateId: c.templateId ?? null,
     userRating: c.userRating ?? null,
-    previewUrl: previewUrl(ctx.publicBaseUrl, projectId, c.id),
-    browserPickUrl: studioLogoUrl(
-      ctx.publicBaseUrl,
-      projectId,
-      previewToken,
-      c.id
+    previewUrl: rewritePreviewUrlOntoPublicBase(
+      previewUrl(ctx.publicBaseUrl, projectId, c.id),
+      ctx.publicBaseUrl
+    ),
+    browserPickUrl: rewritePreviewUrlOntoPublicBase(
+      studioLogoUrl(ctx.publicBaseUrl, projectId, previewToken, c.id),
+      ctx.publicBaseUrl
     ),
     selectHint: `After user confirms or delegates: reply ${i + 1} with userConfirmed: true, or call select_logo with candidateId "${c.id}" and userConfirmed/userDelegatedPick: true`,
   }));
@@ -414,9 +466,10 @@ export async function presentPaletteOptions(
   const previewToken = data.previewToken ?? null;
   const projectId = data.projectId?.trim() || ctx.projectId;
   const projectName = data.projectName?.trim() || null;
-  const previewPickerUrl =
-    data.previewPickerUrl?.trim() ||
-    palettePickerUrl(ctx.publicBaseUrl, projectId, previewToken);
+  const previewPickerUrl = resolvePickerUrl(
+    data.previewPickerUrl,
+    palettePickerUrl(ctx.publicBaseUrl, projectId, previewToken)
+  );
   const headingFont = data.headingFont?.trim() || DEFAULT_HEADING_FONT;
   const bodyFont = data.bodyFont?.trim() || DEFAULT_BODY_FONT;
   const allOptions = data.options ?? [];
@@ -442,11 +495,14 @@ export async function presentPaletteOptions(
     isSelected: o.isSelected,
     swatches: o.swatches,
     previewTokens: o.previewTokens,
-    browserPickUrl: palettePickerUrl(
-      ctx.publicBaseUrl,
-      projectId,
-      previewToken,
-      o.optionId
+    browserPickUrl: rewritePreviewUrlOntoPublicBase(
+      palettePickerUrl(
+        ctx.publicBaseUrl,
+        projectId,
+        previewToken,
+        o.optionId
+      ),
+      ctx.publicBaseUrl
     ),
     selectHint: `After user confirms or delegates: reply **${i + 1}** with userConfirmed: true, or call \`select_palette\` with optionId \`${o.optionId}\` and userConfirmed/userDelegatedPick: true`,
     reeldemoFitAdvisory:

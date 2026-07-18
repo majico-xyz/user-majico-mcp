@@ -78,11 +78,22 @@ export function presentContext(
   creds: ResolvedCredentials,
   defaults?: CredentialSource
 ): PresentContext {
+  const candidates = [
+    defaults?.publicBaseUrl?.trim(),
+    process.env.MAJICO_PUBLIC_BASE_URL?.trim(),
+    creds.baseUrl?.trim(),
+    "https://majico.xyz",
+  ];
   const publicBaseUrl =
-    defaults?.publicBaseUrl?.trim() ||
-    process.env.MAJICO_PUBLIC_BASE_URL?.trim() ||
-    creds.baseUrl?.trim() ||
-    "https://majico.xyz";
+    candidates.find((url) => {
+      if (!url) return false;
+      try {
+        const host = new URL(url).hostname;
+        return host !== "0.0.0.0" && host !== "::" && host !== "[::]";
+      } catch {
+        return false;
+      }
+    }) ?? "https://majico.xyz";
   return { projectId: creds.projectId, publicBaseUrl };
 }
 
