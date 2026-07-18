@@ -177,6 +177,35 @@ describe("isReeldemoPaletteContext", () => {
 });
 
 describe("presentPaletteOptions", () => {
+  it("does not throw when options omit swatches (sdk/payload drift)", async () => {
+    const incomplete = {
+      optionId: "suggested:bare",
+      label: "Bare",
+      isSelected: false,
+      swatches: undefined as unknown as { light: string[]; dark: string[] },
+    };
+    const content = await presentPaletteOptions(
+      {
+        selectedOptionId: null,
+        paletteTokens: null,
+        options: [incomplete],
+      },
+      CTX
+    );
+    expect(content.length).toBeGreaterThan(0);
+    expect(content[0]?.text).toContain("suggested:bare");
+  });
+
+  it("pickPaletteOptionsForDisplay tolerates missing swatches", () => {
+    const bare = {
+      optionId: "x",
+      label: "X",
+      isSelected: false,
+      swatches: undefined as unknown as { light: string[]; dark: string[] },
+    };
+    expect(() => pickPaletteOptionsForDisplay([bare, DARK_STUDIO_OPTION])).not.toThrow();
+  });
+
   it("renders preview card images with browser pick links", async () => {
     const content = await presentPaletteOptions(
       {
