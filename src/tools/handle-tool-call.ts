@@ -39,6 +39,16 @@ export async function handleMajicoToolCall(
     const clientOrError = await clientFromArgs(args, defaultCredentials);
     if ("content" in clientOrError) return clientOrError;
     const { client, creds } = clientOrError;
+    if (
+      !client.projects ||
+      !client.palette ||
+      !client.blog ||
+      !("pulse" in client && client.pulse)
+    ) {
+      return toolError(
+        "Incompatible @majico/sdk: staging/app needs @majico/sdk >= 1.1.0 (projects, palette, blog, pulse). Published 1.0.1 is too old for user-majico-mcp >= 0.6.0."
+      );
+    }
     const ctx = presentContext(creds, defaultCredentials);
 
     const branding = await dispatchBrandingStudioTool(

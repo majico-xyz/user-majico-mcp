@@ -1,6 +1,6 @@
 {
   "name": "user-majico-mcp",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "MCP server for Majico.xyz: brand guidelines, design tokens, studio canvas (Pro projects).",
   "repository": {
     "type": "git",
@@ -55,13 +55,13 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "sharp": "^0.34.5",
-    "@majico/sdk": "^1.0.1"
+    "@majico/sdk": ">=1.0.1"
   },
   "peerDependencies": {
-    "@majico/sdk": ">=0.1.0"
+    "@majico/sdk": ">=1.0.1"
   },
   "devDependencies": {
-    "@majico/sdk": "^1.0.1",
+    "@majico/sdk": ">=1.0.1",
     "@types/node": "^22.19.0",
     "typescript": "^5.9.0",
     "vitest": "4.1.6"

@@ -162,7 +162,7 @@ function tokensFromOption(option: PaletteOptionRow): {
       accent: sanitizeHex(dark.accent, "#FF6A1A"),
     };
   }
-  const sw = option.swatches.dark;
+  const sw = option.swatches?.dark ?? option.swatches?.light ?? [];
   return {
     bg: sanitizeHex(sw[0], "#0B0D10"),
     bgMuted: sanitizeHex(sw[3] ?? sw[0], "#1A1D24"),
