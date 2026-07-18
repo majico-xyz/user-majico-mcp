@@ -44,6 +44,8 @@ type LogoCandidatesPayload = {
   logoFavorites: unknown[];
   shortlistCount: number;
   candidates: LogoCandidateRow[];
+  emptyReason?: string | null;
+  guidance?: string | null;
   projectId?: string | null;
   projectName?: string | null;
   previewToken?: string | null;
@@ -414,14 +416,38 @@ export async function presentLogoCandidates(
     logoSvg: data.logoSvg,
     logoFavorites: data.logoFavorites,
     shortlistCount: data.shortlistCount,
+    emptyReason: data.emptyReason ?? null,
+    guidance: data.guidance ?? null,
     browserLogoUrl,
     previewPickerUrl,
     previewToken,
     agentInstructions:
-      "Show each numbered logo image below. Default: wait for user pick (1-N). If user prompt explicitly asks you to choose, select_logo with userDelegatedPick: true.",
+      candidates.length === 0
+        ? "No distinct generated logo candidates. Do not invent generic marks — run logo generation, then list_logo_candidates again."
+        : "Show each numbered logo image below. Default: wait for user pick (1-N). If user prompt explicitly asks you to choose, select_logo with userDelegatedPick: true.",
     userSelectionWarning: LOGO_USER_SELECTION_WARNING,
     candidates,
   };
+
+  if (candidates.length === 0) {
+    return [
+      {
+        type: "text",
+        text: [
+          `# Logo candidates (0)`,
+          "",
+          data.guidance ??
+            "No generated logo candidates yet. Run logo generation, then call list_logo_candidates again.",
+          "",
+          PLAN_MODE_PREVIEW_NOTE,
+          "",
+          `[Open logo picker](${previewPickerUrl})`,
+          "",
+          JSON.stringify(summary, null, 2),
+        ].join("\n"),
+      },
+    ];
+  }
 
   const content: McpContentBlock[] = [
     {

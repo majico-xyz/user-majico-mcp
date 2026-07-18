@@ -11,11 +11,14 @@ const IMAGE_ANNOTATIONS = {
   priority: 0.9,
 };
 
+/** Runtime `>` so Turbopack/SWC cannot strip `">` from folded template literals. */
+function gt(): string {
+  return String.fromCharCode(0x3e);
+}
+
 /**
  * Ink currentColor and ensure sharp has a root xmlns + explicit size.
- * Does not wrap in a second SVG — Turbopack/SWC has corrupted HTML-looking
- * `">` sequences in constant-folded template strings in Next production chunks
- * (e.g. `viewBox="0 0 144 144<rect`), which breaks librsvg.
+ * Avoids wrapping in a second SVG (librsvg + Turbopack `">` corruption).
  */
 export function prepareSvgMarkupForRaster(svg: string): string {
   let markup = svg
@@ -23,16 +26,25 @@ export function prepareSvgMarkupForRaster(svg: string): string {
     .replace(/\bcurrentColor\b/gi, PREVIEW_FG)
     .replace(/\bcurrentcolour\b/gi, PREVIEW_FG);
 
+  // Repair truncated viewBox smashed into the next tag (Turbopack artifact).
+  markup = markup.replace(
+    /(viewBox\s*=\s*["'][^"']*?)\s*(<[a-zA-Z/])/g,
+    (_, vb: string, next: string) => `${vb}"${gt()}${next}`
+  );
+
   if (!/\sxmlns=/i.test(markup)) {
     markup = markup.replace(
       /<svg\b/i,
-      '<svg xmlns="http://www.w3.org/2000/svg"'
+      `<svg xmlns="http://www.w3.org/2000/svg"`
     );
   }
   if (!/\swidth=/i.test(markup)) {
-    markup = markup.replace(
-      /<svg\b([^>]*)>/i,
-      `<svg$1 width="${PREVIEW_MARK_SIZE}" height="${PREVIEW_MARK_SIZE}">`
+    const close = gt();
+    markup = markup.replace(/<svg\b([^>]*)>/i, (_m, attrs: string) =>
+      [
+        `<svg${attrs} width="${PREVIEW_MARK_SIZE}" height="${PREVIEW_MARK_SIZE}"`,
+        close,
+      ].join("")
     );
   }
   return markup;
