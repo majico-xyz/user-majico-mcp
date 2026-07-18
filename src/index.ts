@@ -13,11 +13,15 @@ export { handleMcpHttpRequest } from "./http-handler.js";
 export {
   handleMajicoToolCall,
   listMcpTools,
+  classifyMcpTool,
+  MCP_LLM_TOOL_NAMES,
+  partitionMcpToolNames,
   MAJICO_TOOLS,
   MAJICO_USER_TOOLS,
   MAJICO_ADMIN_BOOTSTRAP_TOOLS,
   MCP_SERVER_VERSION,
 } from "./tools.js";
+export type { McpToolKind } from "./tools.js";
 export {
   readEnvCredentials,
   resolveCredentials,

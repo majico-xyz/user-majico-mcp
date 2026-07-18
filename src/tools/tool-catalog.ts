@@ -62,3 +62,10 @@ export function listMcpTools(options?: {
   if (options?.includeAdminTools) return MAJICO_TOOLS;
   return MAJICO_USER_TOOLS;
 }
+
+export {
+  classifyMcpTool,
+  MCP_LLM_TOOL_NAMES,
+  partitionMcpToolNames,
+  type McpToolKind,
+} from "./tool-matrix.js";
