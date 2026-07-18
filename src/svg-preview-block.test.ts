@@ -13,9 +13,11 @@ const BOOK_OPEN_SVG =
 describe("prepareSvgForChatPreview", () => {
   it("replaces currentColor and pads on a light background", () => {
     const prepared = prepareSvgForChatPreview(BOOK_OPEN_SVG);
-    expect(prepared).toContain("#f8fafc");
-    expect(prepared).toContain("#0f172a");
+    expect(prepared).toContain("#f4f4f5");
+    expect(prepared).toContain("#111111");
     expect(prepared).not.toMatch(/currentColor/i);
+    // Nested <svg> breaks librsvg on Linux — geometry must be unwrapped.
+    expect(prepared.match(/<svg\b/gi)?.length ?? 0).toBe(1);
   });
 });
 
@@ -26,6 +28,7 @@ describe("svgPreviewBlock", () => {
     expect(block.mimeType).toBe("image/png");
     if (block.type !== "image") return;
     expect(block.data.length).toBeGreaterThan(100);
+    expect(block.annotations?.audience).toEqual(["user", "assistant"]);
     expect(
       Buffer.from(block.data, "base64").subarray(0, 4).toString("hex")
     ).toBe("89504e47");
