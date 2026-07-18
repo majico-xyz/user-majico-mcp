@@ -140,6 +140,13 @@ export async function dispatchPulseBlogTool(
       if (!postId?.trim()) return toolError("postId is required.");
       return toolJson(await client.blog.getPost(postId.trim()));
     }
+    case "get_blog_seo_handoff": {
+      return toolJson(
+        await client.blog.seoHandoff({
+          postId: (args?.postId as string | undefined)?.trim() || undefined,
+        })
+      );
+    }
     case "suggest_blog_opportunities":
       return toolJson(await client.blog.suggestOpportunities());
     case "run_blog_research": {

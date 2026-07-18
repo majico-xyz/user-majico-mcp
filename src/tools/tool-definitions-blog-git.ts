@@ -33,6 +33,21 @@ export const BLOG_GIT_TOOL_DEFINITIONS: Tool[] = [
     },
   },
   {
+    name: "get_blog_seo_handoff",
+    description:
+      "SEO + implementation handoff for blog agents. Returns live SEO gate rules, MCP workflow, technical SEO (sitemap/robots/schema/OG/nginx), and optional per-post checklist. Call before drafting/implementing or when assemble fails the SEO gate.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...optionalCredentialProps,
+        postId: {
+          type: "string",
+          description: "Optional draft id — includes live score/checklist/fixes",
+        },
+      },
+    },
+  },
+  {
     name: "suggest_blog_opportunities",
     description:
       "Suggest research-backed SEO article ideas from project ICP + GTM context. First step for new articles.",
