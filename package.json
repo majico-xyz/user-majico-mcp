@@ -1,6 +1,6 @@
 {
   "name": "user-majico-mcp",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "MCP server for Majico.xyz: brand guidelines, design tokens, studio canvas (Pro projects).",
   "repository": {
     "type": "git",

@@ -18,6 +18,10 @@ describe("prepareSvgForChatPreview", () => {
     expect(prepared).not.toMatch(/currentColor/i);
     // Nested <svg> breaks librsvg on Linux — geometry must be unwrapped.
     expect(prepared.match(/<svg\b/gi)?.length ?? 0).toBe(1);
+    // Turbopack previously stripped `">` before `<rect`, yielding
+    // `viewBox="0 0 144 144<rect` (librsvg column ~99). Guard the join.
+    expect(prepared).toContain('viewBox="0 0 144 144"><rect');
+    expect(prepared).toContain('fill="#f4f4f5"/><g transform=');
   });
 });
 

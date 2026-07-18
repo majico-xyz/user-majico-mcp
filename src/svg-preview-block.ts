@@ -12,6 +12,16 @@ const IMAGE_ANNOTATIONS = {
 };
 
 /**
+ * `>` as a runtime char so Turbopack/SWC cannot constant-fold adjacent
+ * template pieces into a single HTML-looking literal and strip `">` before
+ * the next `<` (seen in Next production chunks as
+ * `viewBox="0 0 144 144<rect` — which breaks librsvg at column ~99).
+ */
+function gt(): string {
+  return String.fromCharCode(0x3e);
+}
+
+/**
  * Strip the outer <svg>…</svg> wrapper so we can embed mark geometry in a
  * padded preview canvas. Nested <svg> is unreliable under librsvg/sharp on
  * Linux (staging) and often yields empty / solid tiles.
@@ -40,14 +50,19 @@ export function prepareSvgForChatPreview(svg: string): string {
   const inner = extractSvgInnerMarkup(inked);
   const size = PREVIEW_MARK_SIZE + PREVIEW_PAD * 2;
   const scale = PREVIEW_MARK_SIZE / 48;
+  const close = gt();
 
+  // Keep `>` on a runtime boundary (see gt()) — do not write `">` immediately
+  // before another `<` inside one constant-foldable template literal.
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`,
-    `<rect width="${size}" height="${size}" fill="${PREVIEW_BG}"/>`,
-    `<g transform="translate(${PREVIEW_PAD} ${PREVIEW_PAD}) scale(${scale})">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"`,
+    close,
+    `<rect width="${size}" height="${size}" fill="${PREVIEW_BG}"/`,
+    close,
+    `<g transform="translate(${PREVIEW_PAD} ${PREVIEW_PAD}) scale(${scale})"`,
+    close,
     inner,
-    `</g>`,
-    `</svg>`,
+    `</g></svg>`,
   ].join("");
 }
 
