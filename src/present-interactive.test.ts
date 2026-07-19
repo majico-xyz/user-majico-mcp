@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("sharp", () => {
-  const sharpMock = vi.fn(() => ({
-    png: () => ({
-      toBuffer: async () => Buffer.from("mock-png"),
-    }),
-  }));
+  const chain = {
+    resize: () => chain,
+    composite: () => chain,
+    png: () => chain,
+    toBuffer: async () => Buffer.from("mock-png"),
+  };
+  const sharpMock = vi.fn(() => chain);
   return { default: sharpMock };
 });
 

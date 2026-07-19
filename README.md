@@ -1,13 +1,15 @@
-# user-majico MCP server
+# `@majico/mcp`
 
 MCP server for [Majico.xyz](https://majico.xyz): read (and limited write) tools so coding agents can pull brand guidelines, design tokens, studio canvas, and export manifests.
+
+Formerly published as `user-majico-mcp` — use `@majico/mcp` going forward (same pattern as `@majico/sdk`).
 
 **Requirements:** Majico account with tokens. Cursor humans connect via **OAuth** (no API key in `mcp.json`). API keys are for automation/stdio only.
 
 ## Install
 
 ```bash
-npx -y user-majico-mcp@0.4.1
+npx -y @majico/mcp@0.8.2
 ```
 
 ## Environment variables (v0.2+)
@@ -108,7 +110,7 @@ Complete **Connect** in Cursor Settings → MCP. Use `list_projects` and pass `p
   "mcpServers": {
     "majico": {
       "command": "npx",
-      "args": ["-y", "user-majico-mcp@0.4.1"],
+      "args": ["-y", "@majico/mcp@0.8.2"],
       "env": {
         "MAJICO_API_URL": "https://api.majico.xyz",
         "MAJICO_PROJECT_ID": "<uuid>",

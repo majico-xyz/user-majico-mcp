@@ -1,7 +1,7 @@
 import type { MajicoClient } from "@majico/sdk";
 
 /**
- * Resources required by user-majico-mcp tool dispatch.
+ * Resources required by @majico/mcp tool dispatch.
  * npm @majico/sdk@1.0.1 omitted these and caused staging
  * "Cannot read properties of undefined" on ping / palette / blog.
  */
@@ -26,7 +26,7 @@ export function mcpSdkSurfaceError(
       return (
         "Incompatible @majico/sdk: need >= 1.1.0 with projects, palette, blog, " +
         "pulse, research, and cursorSkills. Published 1.0.1 is too old for " +
-        "user-majico-mcp >= 0.6.0."
+        "@majico/mcp >= 0.8.0."
       );
     }
   }

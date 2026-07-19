@@ -1,13 +1,12 @@
 {
-  "name": "user-majico-mcp",
-  "version": "0.7.5",
+  "name": "@majico/mcp",
+  "version": "0.8.2",
   "description": "MCP server for Majico.xyz: brand guidelines, design tokens, studio canvas (Pro projects).",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/majico-xyz/majico.xyz.git",
-    "directory": "packages/user-majico-mcp"
+    "url": "git+https://github.com/majico-xyz/user-majico-mcp.git"
   },
-  "homepage": "https://github.com/majico-xyz/majico.xyz/tree/main/packages/user-majico-mcp#readme",
+  "homepage": "https://github.com/majico-xyz/user-majico-mcp#readme",
   "bugs": {
     "url": "https://github.com/majico-xyz/majico.xyz/issues"
   },
@@ -18,6 +17,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
+    "majico-mcp": "dist/index.js",
     "user-majico-mcp": "dist/index.js"
   },
   "exports": {
