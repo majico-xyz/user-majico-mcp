@@ -9,7 +9,7 @@ Formerly published as `user-majico-mcp` — use `@majico/mcp` going forward (sam
 ## Install
 
 ```bash
-npx -y @majico/mcp@0.8.2
+npx -y @majico/mcp@0.8.3
 ```
 
 ## Environment variables (v0.2+)
@@ -110,7 +110,7 @@ Complete **Connect** in Cursor Settings → MCP. Use `list_projects` and pass `p
   "mcpServers": {
     "majico": {
       "command": "npx",
-      "args": ["-y", "@majico/mcp@0.8.2"],
+      "args": ["-y", "@majico/mcp@0.8.3"],
       "env": {
         "MAJICO_API_URL": "https://api.majico.xyz",
         "MAJICO_PROJECT_ID": "<uuid>",
