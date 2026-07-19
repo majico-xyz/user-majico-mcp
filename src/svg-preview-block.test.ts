@@ -3,6 +3,7 @@ import {
   prepareSvgForChatPreview,
   prepareSvgMarkupForRaster,
   svgPreviewBlock,
+  svgPreviewContent,
 } from "./svg-preview-block.js";
 
 const SAMPLE_SVG =
@@ -57,5 +58,28 @@ describe("svgPreviewBlock", () => {
     expect(block.type).toBe("image");
     if (block.type !== "image") return;
     expect(Buffer.from(block.data, "base64").length).toBeGreaterThan(400);
+  });
+
+  it("dual-emits user-only markdown data-URI plus PNG ImageContent", async () => {
+    const blocks = await svgPreviewContent(SAMPLE_SVG);
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0]?.type).toBe("text");
+    if (blocks[0]?.type !== "text") return;
+    expect(blocks[0].text).toMatch(/^!\[preview\]\(data:image\/png;base64,/);
+    expect(blocks[0].annotations?.audience).toEqual(["user"]);
+    expect(blocks[1]?.type).toBe("image");
+    if (blocks[1]?.type !== "image") return;
+    expect(blocks[1].mimeType).toBe("image/png");
+    expect(blocks[1].annotations?.audience).toEqual(["user", "assistant"]);
+  });
+
+  it("soft-fails with SVG fence when markup cannot be rasterized", async () => {
+    const block = await svgPreviewBlock("definitely-not-valid-svg-markup");
+    expect(block.type).toBe("text");
+    if (block.type !== "text") return;
+    expect(block.text).toContain("PNG preview unavailable:");
+    expect(block.text).toContain("```svg");
+    expect(block.text).toContain("definitely-not-valid-svg-markup");
+    expect(block.text).toContain("browser picker");
   });
 });

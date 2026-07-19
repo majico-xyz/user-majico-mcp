@@ -5,10 +5,23 @@ const PREVIEW_PAD = 24;
 const PREVIEW_MARK_SIZE = 96;
 const PREVIEW_BG = { r: 0xf4, g: 0xf4, b: 0xf5, alpha: 1 };
 const PREVIEW_FG = "#111111";
+/** Cap soft-fail SVG so tool results stay small when sharp fails. */
+const SOFT_FAIL_SVG_MAX = 1800;
 
 const IMAGE_ANNOTATIONS = {
   audience: ["user", "assistant"] as ("user" | "assistant")[],
   priority: 0.9,
+};
+
+/**
+ * Markdown data-URI is user-only: avoids doubling base64 into the model context
+ * while still giving chat UIs that render markdown images a fallback. Cursor's
+ * reliable path is still MCP ImageContent (PNG) below — not link favicons,
+ * resource_link icons, or auth-gated SVG preview URLs.
+ */
+const MARKDOWN_FALLBACK_ANNOTATIONS = {
+  audience: ["user"] as ("user")[],
+  priority: 0.85,
 };
 
 /** Runtime `>` so Turbopack/SWC cannot strip `">` from folded template literals. */
@@ -55,10 +68,32 @@ export function prepareSvgForChatPreview(svg: string): string {
   return prepareSvgMarkupForRaster(svg);
 }
 
+function softFailText(err: unknown, svg: string): McpContentBlock {
+  const message = err instanceof Error ? err.message : String(err);
+  const clipped =
+    svg.length > SOFT_FAIL_SVG_MAX
+      ? `${svg.slice(0, SOFT_FAIL_SVG_MAX)}\n<!-- truncated -->`
+      : svg;
+  return {
+    type: "text",
+    text: [
+      `_(PNG preview unavailable: ${message})_`,
+      "Open the browser picker link above if present.",
+      "",
+      "```svg",
+      clipped.trim(),
+      "```",
+    ].join("\n"),
+  };
+}
+
 /**
  * Rasterize inline SVG to a PNG MCP image block (Cursor renders PNG, not SVG).
  * Pads on a light canvas via sharp.composite (no wrapper SVG string).
- * Soft-fails to a text note when sharp cannot rasterize.
+ * Soft-fails to a text note + capped SVG fence when sharp cannot rasterize.
+ *
+ * Chat “favicons” next to pasted URLs / search hits are Cursor link chrome —
+ * not an MCP API. Inline previews need ImageContent (`type: "image"`).
  */
 export async function svgPreviewBlock(svg: string): Promise<McpContentBlock> {
   try {
@@ -91,10 +126,26 @@ export async function svgPreviewBlock(svg: string): Promise<McpContentBlock> {
       annotations: IMAGE_ANNOTATIONS,
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return {
-      type: "text",
-      text: `_(PNG preview unavailable: ${message})_`,
-    };
+    return softFailText(err, svg);
   }
+}
+
+/**
+ * Dual-emit: user-only markdown data-URI (fallback) + MCP ImageContent PNG.
+ * Prefer this for logo/palette cards so Agent mode keeps ImageContent while
+ * markdown-capable UIs still get a preview when ImageContent is skipped.
+ */
+export async function svgPreviewContent(
+  svg: string
+): Promise<McpContentBlock[]> {
+  const block = await svgPreviewBlock(svg);
+  if (block.type !== "image") return [block];
+  return [
+    {
+      type: "text",
+      text: `![preview](data:${block.mimeType};base64,${block.data})`,
+      annotations: MARKDOWN_FALLBACK_ANNOTATIONS,
+    },
+    block,
+  ];
 }

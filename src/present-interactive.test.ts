@@ -102,8 +102,16 @@ describe("presentLogoCandidates", () => {
     expect(content[0]?.text).toContain("Logo candidates");
     expect(content[0]?.text).toContain("requiresUserSelection");
     expect(content[0]?.text).toContain("Plan mode");
+    expect(content[0]?.text).toContain("Link favicons");
     expect(
       content.some((b) => b.type === "text" && b.text.includes("abc-1"))
+    ).toBe(true);
+    expect(
+      content.some(
+        (b) =>
+          b.type === "text" &&
+          b.text.startsWith("![preview](data:image/png;base64,")
+      )
     ).toBe(true);
   });
 

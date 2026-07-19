@@ -1,13 +1,15 @@
+export type McpAnnotations = {
+  audience?: Array<"user" | "assistant">;
+  priority?: number;
+};
+
 export type McpContentBlock =
-  | { type: "text"; text: string }
+  | { type: "text"; text: string; annotations?: McpAnnotations }
   | {
       type: "image";
       data: string;
       mimeType: string;
-      annotations?: {
-        audience?: Array<"user" | "assistant">;
-        priority?: number;
-      };
+      annotations?: McpAnnotations;
     };
 
 export type PresentContext = {

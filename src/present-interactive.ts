@@ -1,4 +1,4 @@
-import { svgPreviewBlock } from "./svg-preview-block.js";
+import { svgPreviewContent } from "./svg-preview-block.js";
 import type { McpContentBlock, PresentContext } from "./present-types.js";
 
 export type { McpContentBlock, PresentContext } from "./present-types.js";
@@ -297,8 +297,9 @@ export function rewritePreviewUrlOntoPublicBase(
 }
 
 const PLAN_MODE_PREVIEW_NOTE = [
-  "**Cursor Plan mode:** inline previews often do not render — open the browser picker link below.",
-  "**Agent mode:** PNG preview cards should appear below each option when supported.",
+  "**Cursor Plan mode:** MCP PNG ImageContent often does not render — open the browser picker link below.",
+  "**Agent mode:** PNG image blocks (plus markdown data-URI fallback) should appear under each option.",
+  "Link favicons in chat are unrelated URL chrome, not a preview API.",
 ].join(" ");
 
 function logoPickerUrl(
@@ -475,11 +476,11 @@ export async function presentLogoCandidates(
       text: [
         `## Option ${c.index} — \`${c.id.slice(0, 8)}…\``,
         `Preview: ${c.previewUrl}`,
-        `Browser: ${c.browserPickUrl}`,
+        `[Open in browser](${c.browserPickUrl})`,
         c.selectHint,
       ].join("\n"),
     });
-    if (raw?.trim()) content.push(await svgPreviewBlock(raw));
+    if (raw?.trim()) content.push(...(await svgPreviewContent(raw)));
   }
 
   return content;
@@ -606,7 +607,7 @@ export async function presentPaletteOptions(
           o.selectHint,
         ].join("\n"),
       });
-      content.push(await svgPreviewBlock(cardSvg));
+      content.push(...(await svgPreviewContent(cardSvg)));
     }
   } else if (data.paletteTokens) {
     content.push({
@@ -615,8 +616,8 @@ export async function presentPaletteOptions(
     });
     const light = lockedPaletteSvg(data.paletteTokens, "light");
     const dark = lockedPaletteSvg(data.paletteTokens, "dark");
-    if (light) content.push(await svgPreviewBlock(light));
-    if (dark) content.push(await svgPreviewBlock(dark));
+    if (light) content.push(...(await svgPreviewContent(light)));
+    if (dark) content.push(...(await svgPreviewContent(dark)));
   }
 
   return content;
