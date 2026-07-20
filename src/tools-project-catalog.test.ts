@@ -262,6 +262,58 @@ describe("handleMajicoToolCall", () => {
     );
   });
 
+  it("get_project_api_key calls /api-key", async () => {
+    process.env.MAJICO_PROJECT_ID = PROJECT_ID;
+    process.env.MAJICO_API_KEY = "env-key";
+    process.env.MAJICO_API_URL = "http://127.0.0.1:3001";
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          ok: true,
+          projectId: PROJECT_ID,
+          projectApiKey: "majico_agent_key",
+          rotated: false,
+          httpMcpConfig: {
+            type: "http",
+            url: "http://127.0.0.1:3001/mcp",
+            headers: {
+              Authorization: "Bearer majico_agent_key",
+              "X-Majico-Project-Id": PROJECT_ID,
+            },
+          },
+          envSnippet: {
+            MAJICO_API_URL: "http://127.0.0.1:3001",
+            MAJICO_PROJECT_ID: PROJECT_ID,
+            MAJICO_API_KEY: "majico_agent_key",
+          },
+          instructions: ["Store in gitignored env"],
+        }),
+        { status: 200 }
+      )
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const result = await handleMajicoToolCall("get_project_api_key", {
+      projectId: PROJECT_ID,
+    });
+    expect(result.isError).toBeFalsy();
+    const body = JSON.parse(result.content[0]?.text ?? "{}") as {
+      projectApiKey: string;
+    };
+    expect(body.projectApiKey).toBe("majico_agent_key");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/mcp/projects/${PROJECT_ID}/api-key`),
+      expect.any(Object)
+    );
+  });
+
+  it("listMcpTools includes get_project_api_key", () => {
+    const names = listMcpTools().map((tool) => tool.name);
+    expect(names).toContain("get_project_api_key");
+    expect(names).toContain("mint_project_api_key");
+  });
+
   it("listMcpTools hides bootstrap tools by default", () => {
     const names = listMcpTools().map((tool) => tool.name);
     expect(names).not.toContain("bootstrap_project");

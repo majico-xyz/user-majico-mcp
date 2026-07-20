@@ -206,7 +206,7 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "create_project",
     description:
-      "Create a new Majico branding project for the authenticated user. Returns project id — pass projectId on subsequent tool calls; do not paste API keys into mcp.json. Ask the user before creating — prefer list_projects when they may want an existing project.",
+      "Create a new Majico branding project for the authenticated user. Returns project id and projectApiKey. Humans: keep using OAuth in Cursor. Agents: call get_project_api_key (or use the returned key) and store Bearer + X-Majico-Project-Id in gitignored env — never commit keys. Ask the user before creating — prefer list_projects when they may want an existing project.",
     inputSchema: {
       type: "object",
       properties: {
@@ -217,6 +217,40 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
         },
       },
       required: ["name"],
+    },
+  },
+  {
+    name: "get_project_api_key",
+    description:
+      "After OAuth Connect: mint (if missing) or return the reusable project API key for this projectId. Agents store it in gitignored .env.majico / MCP headers (Bearer + X-Majico-Project-Id) and call tools without OAuth thereafter. Optional rotate:true invalidates the previous key. Alias: mint_project_api_key." +
+      ASK_USER_PROJECT_SCOPE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...optionalCredentialProps,
+        rotate: {
+          type: "boolean",
+          description:
+            "When true, rotate the project API key (invalidates previous key).",
+        },
+      },
+    },
+  },
+  {
+    name: "mint_project_api_key",
+    description:
+      "Alias for get_project_api_key — mint/return the project API key after OAuth for agent reuse without OAuth on subsequent calls." +
+      ASK_USER_PROJECT_SCOPE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...optionalCredentialProps,
+        rotate: {
+          type: "boolean",
+          description:
+            "When true, rotate the project API key (invalidates previous key).",
+        },
+      },
     },
   },
 ];
