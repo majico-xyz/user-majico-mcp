@@ -1,6 +1,7 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   ASK_USER_PROJECT_SCOPE,
+  MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
   optionalCredentialProps,
   projectContextProps,
   stableBrandMarkdownProps,
@@ -10,7 +11,8 @@ export const STUDIO_PULSE_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "ping",
     description:
-      "Pre-flight check: auth mode, user, project scope, and whether brand canvas data exists. Call this first before other branding tools. If authRequired is true or the MCP session is not connected, stop and ask the user to Connect in Cursor Settings → MCP → majico (call mcp_auth for the exact prompt). When project scope is not confirmed, returns projectSelectionRequired and relevantProjects (top 3–5 by name/description match) — present options to the user; never auto-switches scope." +
+      "Pre-flight check: auth mode, user, project scope, and whether brand canvas data exists. Call this first before other branding tools. If authRequired is true or the MCP session is not connected, stop and ask the user to Connect in Cursor Settings → MCP → majico (call mcp_auth for the exact prompt). When project scope is not confirmed, returns projectSelectionRequired and relevantProjects (top 3–5 by name/description match) — present options to the user; never auto-switches scope. Response includes skillsGuidance: Majico auto-ships Cursor skills. On UI/landing/SEO/motion work call sync_cursor_skills / get_ui_ux_skills without waiting for another user request." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",

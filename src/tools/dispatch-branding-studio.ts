@@ -27,6 +27,7 @@ import {
   MCP_SERVER_VERSION,
   resolveProjectRelevanceContext,
 } from "./constants.js";
+import { MAJICO_SKILLS_MUST_USE_GUIDANCE } from "../skills-agent-guidance.js";
 import {
   type ToolCallResult,
   toolError,
@@ -74,6 +75,7 @@ export async function dispatchBrandingStudioTool(
         previewPickerUrl: ping.previewPickerUrl ?? null,
         baseUrl: creds.baseUrl,
         serverVersion: MCP_SERVER_VERSION,
+        skillsGuidance: MAJICO_SKILLS_MUST_USE_GUIDANCE,
         ...(defaultCredentials?.auth === "oauth"
           ? {
               agentApiKeyHint:
