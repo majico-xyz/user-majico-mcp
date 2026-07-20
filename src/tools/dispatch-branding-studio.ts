@@ -74,6 +74,12 @@ export async function dispatchBrandingStudioTool(
         previewPickerUrl: ping.previewPickerUrl ?? null,
         baseUrl: creds.baseUrl,
         serverVersion: MCP_SERVER_VERSION,
+        ...(defaultCredentials?.auth === "oauth"
+          ? {
+              agentApiKeyHint:
+                "Call get_project_api_key with this projectId to obtain a reusable project API key for agents (Bearer + X-Majico-Project-Id). Humans keep OAuth; agents use the key without OAuth afterward.",
+            }
+          : {}),
         ...(selection ?? {}),
       });
     }
@@ -94,6 +100,13 @@ export async function dispatchBrandingStudioTool(
       const projectName = requireStringArg(args, "name");
       if (!projectName) return toolError("name is required.");
       return toolJson(await client.projects.create(projectName));
+    }
+    case "get_project_api_key":
+    case "mint_project_api_key": {
+      const rotate = args?.rotate === true;
+      return toolJson(
+        await client.projects.getApiKey({ rotate })
+      );
     }
     case "brand":
     case "get_brand_profile":

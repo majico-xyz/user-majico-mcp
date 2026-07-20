@@ -27,6 +27,10 @@ const BRANDING_TOOL_NAMES = new Set([
   "get_export_manifest",
   "download_export_zip",
   "submit_brief",
+  "list_projects",
+  "create_project",
+  "get_project_api_key",
+  "mint_project_api_key",
   "list_palette_options",
   "select_palette",
   "update_studio_html_frame",
@@ -43,7 +47,6 @@ const BRANDING_TOOL_NAMES = new Set([
   "design_md",
   "studio",
   "export_manifest",
-  "submit_brief",
   "cursor_handoff",
 ]);
 
