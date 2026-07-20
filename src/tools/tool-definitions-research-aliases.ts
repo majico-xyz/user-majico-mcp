@@ -1,6 +1,7 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   ASK_USER_PROJECT_SCOPE,
+  MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
   optionalCredentialProps,
   projectContextProps,
   stableBrandMarkdownProps,
@@ -305,7 +306,8 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "get_ui_ux_skills",
     description:
-      "List project Cursor UI/UX skills from DB (user-editable). Seeds defaults on first fetch. Use with get_brand_md + get_design_md. Falls back to static catalog when project auth is missing." +
+      "List project Cursor UI/UX skills from DB (user-editable). Seeds defaults on first fetch. Use with get_brand_md + get_design_md. Falls back to static catalog when project auth is missing. Categories include design, motion, landing copy, SEO / AI optimization, and other UI/UX guides Majico ships." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",
@@ -315,7 +317,8 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "sync_cursor_skills",
     description:
-      "Return SKILL.md files to install under .cursor/skills/ in the consumer repo — flexible guides for on-brand UI. Call after get_brand_md + get_design_md; write files then let the agent load skills as needed." +
+      "Return SKILL.md files to install under .cursor/skills/ in the consumer repo. Majico auto-ships these skills (design, motion, landing copy, SEO / AI optimization, polish). Call proactively on brand/UI/landing/SEO/motion work when skills are not local. Write files, then load the matching skill for the task." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",

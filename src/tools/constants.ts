@@ -1,13 +1,16 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { AUTH_FIRST_STEP } from "../auth-prompt.js";
+import { MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX } from "../skills-agent-guidance.js";
 
-export const MCP_SERVER_VERSION = "0.9.0";
+export const MCP_SERVER_VERSION = "0.9.1";
 
 export const ASK_USER_PROJECT_SCOPE =
   " Before other tools: call ping, then ask the user whether to use an existing Majico project (list_projects) or create_project for this request; pass projectId on tool calls once confirmed.";
 
 export const MCP_AUTH_TOOL_DESCRIPTION =
   "Authenticate the Majico MCP server with OAuth in Cursor. If ping fails or any tool returns authRequired: true, stop and ask the user to Connect before other tools. Call this tool to get the exact user-facing prompt to display verbatim.";
+
+export { MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX };
 
 const BRANDING_TOOL_NAMES = new Set([
   "get_brand_profile",

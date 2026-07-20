@@ -1,6 +1,7 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   ASK_USER_PROJECT_SCOPE,
+  MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
   optionalCredentialProps,
   projectContextProps,
   stableBrandMarkdownProps,
@@ -35,7 +36,8 @@ export const BLOG_GIT_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "get_blog_seo_handoff",
     description:
-      "SEO + implementation handoff for blog agents. Returns live SEO gate rules, MCP workflow, technical SEO (sitemap/robots/schema/OG/nginx), and optional per-post checklist. Call before drafting/implementing or when assemble fails the SEO gate.",
+      "SEO + implementation handoff for blog agents. Returns live SEO gate rules, MCP workflow, technical SEO (sitemap/robots/schema/OG/nginx), and optional per-post checklist. Call before drafting/implementing or when assemble fails the SEO gate. Load majico-blog-seo-handoff (or sync_cursor_skills) when doing SEO / AI optimization work." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
     inputSchema: {
       type: "object",
       properties: {
@@ -203,7 +205,8 @@ export const BLOG_GIT_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "publish_landing_page",
     description:
-      "Publish htmlFrame landing content to Git (new repo, existing repo PR/MR, or org landing path).",
+      "Publish htmlFrame landing content to Git (new repo, existing repo PR/MR, or org landing path). Apply Majico landing copy and design skills before publish." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
     inputSchema: {
       type: "object",
       properties: {

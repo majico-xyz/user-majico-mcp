@@ -1,6 +1,7 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   ASK_USER_PROJECT_SCOPE,
+  MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
   optionalCredentialProps,
   projectContextProps,
   stableBrandMarkdownProps,
@@ -81,7 +82,8 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "get_cursor_handoff",
     description:
-      "Read pending browser→Cursor handoff (logo pick, brand apply). Call after user works in embedded browser.",
+      "Read pending browser→Cursor handoff (logo pick, brand apply). Call after user works in embedded browser. After handoff: sync_cursor_skills if skills are not local, then apply brand using Majico-shipped skills." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
     inputSchema: {
       type: "object",
       properties: { ...optionalCredentialProps },
@@ -107,6 +109,7 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
     name: "get_guidelines",
     description:
       "Get full brand guidelines: markdown document and LLM prompt text. Use to transmit brand guidelines into Cursor in one call." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",
@@ -117,6 +120,7 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
     name: "get_design_md",
     description:
       "Get DESIGN.md markdown for repo drop-in (design tokens and brand context)." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",
@@ -127,6 +131,7 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
     name: "get_brand_md",
     description:
       "Get BRAND.md agent handoff markdown (identity, voice, positioning, visual summary). Prefers enriched worker output when available." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",
@@ -157,6 +162,7 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
     name: "download_export_zip",
     description:
       "Download the full brand export ZIP (BRAND.md, DESIGN.md, guidelines, tokens, logo SVGs). Token-gated. Returns base64 in the MCP response — decode and write files into the consumer repo." +
+      MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
       type: "object",

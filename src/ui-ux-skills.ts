@@ -6,6 +6,10 @@
  */
 
 import { buildRecommendedExternalSkillsPayload } from "./recommended-external-skills.js";
+import {
+  MAJICO_SKILLS_MUST_USE_GUIDANCE,
+  MAJICO_SKILLS_SYNC_NOTE,
+} from "./skills-agent-guidance.js";
 
 export type UiUxSkillPhase =
   | "prepare"
@@ -114,11 +118,12 @@ export const MAJICO_UI_UX_SKILLS: readonly UiUxSkillEntry[] = [
 ] as const;
 
 export const UI_UX_HANDOFF_WORKFLOW_STEPS: readonly string[] = [
-  "Read **BRAND.md** + **DESIGN.md** together — identity/voice first, then tokens, typography, components, layout.",
-  "If Majico MCP is connected: load **majico-branding-sync**, then call `get_brand_md`, `get_design_md`, `get_design_tokens`, and `get_logo_svg` (when logo exists).",
-  "For greenfield UI: load **brainstorming** — lock hero order (headline → subcopy → CTA) and section rhythm before coding.",
-  "Map DESIGN.md tokens to repo CSS variables / theme config — never hardcode brand hex in components.",
-  "Implement surfaces using DESIGN.md component + layout rules; write copy from BRAND.md voice and do's/don'ts.",
+  MAJICO_SKILLS_MUST_USE_GUIDANCE,
+  "Read **BRAND.md** + **DESIGN.md** together: identity/voice first, then tokens, typography, components, layout.",
+  "If Majico MCP is connected: call `sync_cursor_skills` / `get_ui_ux_skills` if skills are not local, load **majico-branding-sync**, then call `get_brand_md`, `get_design_md`, `get_design_tokens`, and `get_logo_svg` (when logo exists).",
+  "For greenfield UI: load **brainstorming**. Lock hero order (headline → subcopy → CTA) and section rhythm before coding.",
+  "Map DESIGN.md tokens to repo CSS variables / theme config. Never hardcode brand hex in components.",
+  "Implement surfaces using DESIGN.md component + layout rules. Write copy from BRAND.md voice and do's/don'ts. For motion or landing work, load the matching Majico skill (for example `ui-motion-expressive`, `ui-layout-discover`).",
   "When Cursor Figma MCP is connected: load **figma-use**, then **figma-generate-design** or **figma-generate-library** for parity.",
   "For UI/CSS fixes: add a regression test that would have failed before the change.",
   "Before done: load **verification-before-completion**; if this session started from Studio handoff, call `ack_cursor_handoff`.",
@@ -151,13 +156,15 @@ export function renderUiUxSkillsHandoffMarkdown(options?: {
   const lines: string[] = [
     `${heading} 11. Cursor UI/UX skills (agent workflow)`,
     "",
-    "Majico curates these Cursor skills so agents ship **on-brand UI**, not generic templates. Use with the handoff pair **[BRAND.md](./BRAND.md) + [design.md](./design.md)** (or `get_brand_md` + `get_design_md` via MCP).",
+    "Majico curates these Cursor skills so agents ship **on-brand UI**. Use with the handoff pair **[BRAND.md](./BRAND.md) + [design.md](./design.md)** (or `get_brand_md` + `get_design_md` via MCP).",
+    "",
+    MAJICO_SKILLS_MUST_USE_GUIDANCE,
     "",
     "### Reading order",
     "",
-    "1. **BRAND.md** — identity, voice, positioning, visual summary, do's/don'ts",
-    "2. **design.md** — tokens, typography, components, layout (source of truth for CSS)",
-    "3. **This section** — which skills to load and in what order",
+    "1. **BRAND.md**: identity, voice, positioning, visual summary, do's/don'ts",
+    "2. **design.md**: tokens, typography, components, layout (source of truth for CSS)",
+    "3. **This section**: which skills to load and in what order",
     "",
     "### Curated skills",
     "",
@@ -182,7 +189,7 @@ export function renderUiUxSkillsHandoffMarkdown(options?: {
       (step, index) => `${index + 1}. ${step}`
     ),
     "",
-    "**Note:** Plugin skills load when installed in Cursor. Per-project skills live in the DB — call MCP `sync_cursor_skills` to write `.cursor/skills/` in the consumer repo. Users edit skills via `update_cursor_skill`.",
+    MAJICO_SKILLS_SYNC_NOTE,
     "",
     "### Optional killer UI/UX skills (external)",
     "",
