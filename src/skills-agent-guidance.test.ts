@@ -17,6 +17,7 @@ describe("skills agent guidance", () => {
     ]) {
       expect(text).toMatch(/sync_cursor_skills/);
       expect(text).toMatch(/SEO|landing|motion|design/i);
+      expect(text).toMatch(/landing-page-oneshot/);
       expect(text).not.toMatch(/—/);
       expect(text).not.toMatch(/; and\b/);
     }
@@ -31,13 +32,16 @@ describe("skills agent guidance", () => {
       "get_brand_md",
       "get_guidelines",
       "ping",
+      "publish_landing_page",
     ]) {
       expect(byName.get(name)).toContain("Majico-shipped Cursor skills");
       expect(byName.get(name)).toContain("sync_cursor_skills");
+      expect(byName.get(name)).toContain("landing-page-oneshot");
     }
     expect(MAJICO_MCP_SERVER_DESCRIPTION).toContain(
       "ships Cursor skills automatically"
     );
+    expect(MAJICO_MCP_SERVER_DESCRIPTION).toContain("landing-page-oneshot");
   });
 
   it("includes auto-ship guidance in get_ui_ux_skills markdown", () => {
@@ -45,5 +49,7 @@ describe("skills agent guidance", () => {
     expect(md).toContain("ships Cursor skills automatically");
     expect(md).toContain("Do not wait for the user to ask again");
     expect(md).toContain("sync_cursor_skills");
+    expect(md).toContain("landing-page-oneshot");
+    expect(md).toContain("hero budget");
   });
 });

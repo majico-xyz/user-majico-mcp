@@ -205,7 +205,7 @@ export const BLOG_GIT_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "publish_landing_page",
     description:
-      "Publish htmlFrame landing content to Git (new repo, existing repo PR/MR, or org landing path). Apply Majico landing copy and design skills before publish." +
+      "Publish htmlFrame landing content to Git (new repo, existing repo PR/MR, or org landing path). Before publish: load landing-page-oneshot (section order, hero budget, on-brand tokens) plus brand/design skills. Apply Majico landing copy and design skills." +
       MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX,
     inputSchema: {
       type: "object",

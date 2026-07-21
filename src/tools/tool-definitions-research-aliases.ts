@@ -306,7 +306,7 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "get_ui_ux_skills",
     description:
-      "List project Cursor UI/UX skills from DB (user-editable). Seeds defaults on first fetch. Use with get_brand_md + get_design_md. Falls back to static catalog when project auth is missing. Categories include design, motion, landing copy, SEO / AI optimization, and other UI/UX guides Majico ships." +
+      "List project Cursor UI/UX skills from DB (user-editable). Seeds defaults on first fetch (includes landing-page-oneshot). Use with get_brand_md + get_design_md. Falls back to static catalog when project auth is missing. Categories include design, motion, landing copy (landing-page-oneshot), SEO / AI optimization, and other UI/UX guides Majico ships." +
       MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {
@@ -317,7 +317,7 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "sync_cursor_skills",
     description:
-      "Return SKILL.md files to install under .cursor/skills/ in the consumer repo. Majico auto-ships these skills (design, motion, landing copy, SEO / AI optimization, polish). Call proactively on brand/UI/landing/SEO/motion work when skills are not local. Write files, then load the matching skill for the task." +
+      "Return SKILL.md files to install under .cursor/skills/ in the consumer repo. Majico auto-ships these skills (design, motion, landing-page-oneshot / landing copy, SEO / AI optimization, polish). Call proactively on brand/UI/landing/SEO/motion work when skills are not local. Write files, then load the matching skill for the task (landings: landing-page-oneshot)." +
       MAJICO_SKILLS_TOOL_DESCRIPTION_SUFFIX +
       ASK_USER_PROJECT_SCOPE,
     inputSchema: {

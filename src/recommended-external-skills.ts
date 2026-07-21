@@ -309,11 +309,12 @@ export const RECOMMENDED_SKILL_BUNDLES: readonly RecommendedSkillsBundle[] = [
       "baseline-ui",
       "make-interfaces-feel-better",
       "ui-motion-expressive",
+      "landing-page-oneshot",
       "fixing-accessibility",
       "clarify",
       "polish",
     ],
-    note: "Pair with Majico sync_cursor_skills + BRAND.md + DESIGN.md.",
+    note: "Pair with Majico sync_cursor_skills + BRAND.md + DESIGN.md. Load landing-page-oneshot for section order and hero budget.",
   },
   {
     id: "saas-app",

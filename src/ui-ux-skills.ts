@@ -12,11 +12,7 @@ import {
 } from "./skills-agent-guidance.js";
 
 export type UiUxSkillPhase =
-  | "prepare"
-  | "discover"
-  | "implement"
-  | "sync"
-  | "verify";
+  "prepare" | "discover" | "implement" | "sync" | "verify";
 
 export type UiUxSkillSource = "majico" | "cursor-plugin" | "optional";
 
@@ -58,8 +54,19 @@ export const MAJICO_UI_UX_SKILLS: readonly UiUxSkillEntry[] = [
     phase: "discover",
     source: "cursor-plugin",
     whenToUse:
-      "Before net-new screens, landing sections, or navigation — explore layout and UX intent aligned with BRAND.md voice and DESIGN.md layout principles.",
+      "Before net-new screens, landing sections, or navigation. Explore layout and UX intent aligned with BRAND.md voice and DESIGN.md layout principles.",
     priority: 2,
+  },
+  {
+    id: "landing-page-oneshot",
+    name: "Landing page oneshot",
+    skillRef: "landing-page-oneshot",
+    phase: "implement",
+    source: "majico",
+    whenToUse:
+      "Marketing / SaaS landings: required section order, hero budget, CTA strategy, social proof, SEO basics, motion budget, on-brand tokens, verification. Load before building or publish_landing_page.",
+    requiresMcp: "majico",
+    priority: 8,
   },
   {
     id: "figma-use",
@@ -68,7 +75,7 @@ export const MAJICO_UI_UX_SKILLS: readonly UiUxSkillEntry[] = [
     phase: "sync",
     source: "cursor-plugin",
     whenToUse:
-      "Mandatory prerequisite before any Figma MCP write/read — load before figma-generate-design or push tokens.",
+      "Mandatory prerequisite before any Figma MCP write/read. Load before figma-generate-design or push tokens.",
     requiresMcp: "figma",
     priority: 3,
   },
@@ -122,11 +129,12 @@ export const UI_UX_HANDOFF_WORKFLOW_STEPS: readonly string[] = [
   "Read **BRAND.md** + **DESIGN.md** together: identity/voice first, then tokens, typography, components, layout.",
   "If Majico MCP is connected: call `sync_cursor_skills` / `get_ui_ux_skills` if skills are not local, load **majico-branding-sync**, then call `get_brand_md`, `get_design_md`, `get_design_tokens`, and `get_logo_svg` (when logo exists).",
   "For greenfield UI: load **brainstorming**. Lock hero order (headline → subcopy → CTA) and section rhythm before coding.",
+  "For marketing landings: load **landing-page-oneshot** (required section checklist, hero budget, CTA strategy, proof, SEO basics, motion budget, verification). Apply on-brand tokens before inventing styles.",
   "Map DESIGN.md tokens to repo CSS variables / theme config. Never hardcode brand hex in components.",
-  "Implement surfaces using DESIGN.md component + layout rules. Write copy from BRAND.md voice and do's/don'ts. For motion or landing work, load the matching Majico skill (for example `ui-motion-expressive`, `ui-layout-discover`).",
+  "Implement surfaces using DESIGN.md component + layout rules. Write copy from BRAND.md voice and do's/don'ts. For motion work load `ui-motion-expressive`. For IA sketch load `ui-layout-discover`.",
   "When Cursor Figma MCP is connected: load **figma-use**, then **figma-generate-design** or **figma-generate-library** for parity.",
   "For UI/CSS fixes: add a regression test that would have failed before the change.",
-  "Before done: load **verification-before-completion**; if this session started from Studio handoff, call `ack_cursor_handoff`.",
+  "Before done: load **verification-before-completion** (and `ui-ship-check` / landing-page-oneshot checklist for landings); if this session started from Studio handoff, call `ack_cursor_handoff`.",
 ] as const;
 
 function sourceLabel(source: UiUxSkillSource): string {
