@@ -73,7 +73,7 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
   {
     name: "generate_asset",
     description:
-      "Enqueue full asset harness generation for a skill (research + backend). Common skillId values: landing-page (marketing site), guideline-html (brand guidelines HTML), investor-pack (pitch deck htmlFrame + outreach markdown — requires brand chain, palette, GTM, team, traction preflight), investor-one-pager (PDF one-pager — requires harness-investor-pack on canvas), investor-data-room (diligence checklist markdown — requires deck on canvas). Returns jobId — poll get_asset_status. investor-pack params.team / params.traction override canvas snapshots; params.includeSlides may include competition, financials, roadmap. For ask slide after deck exists, use patch_investor_ask_slide with raiseAmount + useOfFunds.",
+      "Enqueue full asset harness generation for a skill (research + backend). Common skillId values: landing-page (marketing site), guideline-html (brand guidelines HTML), video-demo-reel (Demo video handoff — textless MP4 + CapCut-editable SRT by default; params.editPack false for burned social MP4), investor-pack (pitch deck htmlFrame + outreach markdown — requires brand chain, palette, GTM, team, traction preflight), investor-one-pager (PDF one-pager — requires harness-investor-pack on canvas), investor-data-room (diligence checklist markdown — requires deck on canvas). Returns jobId — poll get_asset_status. investor-pack params.team / params.traction override canvas snapshots; params.includeSlides may include competition, financials, roadmap. For ask slide after deck exists, use patch_investor_ask_slide with raiseAmount + useOfFunds.",
     inputSchema: {
       type: "object",
       properties: {
@@ -81,15 +81,30 @@ export const RESEARCH_ALIAS_TOOL_DEFINITIONS: Tool[] = [
         skillId: {
           type: "string",
           description:
-            "Harness skill id. investor-pack (deck + outreach), investor-one-pager (PDF), investor-data-room (checklist).",
+            "Harness skill id. video-demo-reel (CapCut handoff), investor-pack (deck + outreach), investor-one-pager (PDF), investor-data-room (checklist).",
         },
         elementId: { type: "string" },
         flowGroupId: { type: "string" },
         params: {
           type: "object",
           description:
-            "Skill-specific harness params. investor-pack: team ({ members: [{ name, role, bio? }] }), traction ({ metrics?, alternativeProof? }), includeSlides (string[]).",
+            "Skill-specific harness params. video-demo-reel: editPack (boolean, default true — textless MP4 + SRT for CapCut), burnText (boolean), copy ({ domain?, promise?, cta?, introLine?, middleBeats? }). investor-pack: team ({ members: [{ name, role, bio? }] }), traction ({ metrics?, alternativeProof? }), includeSlides (string[]).",
           properties: {
+            editPack: {
+              type: "boolean",
+              description:
+                "video-demo-reel: when true (default), emit Demo video handoff — textless MP4 + timed SRT stored in project_assets slots video-reel / video-reel-srt.",
+            },
+            burnText: {
+              type: "boolean",
+              description:
+                "video-demo-reel: when true, burn captions into MP4 (social-ready). Implies editPack false.",
+            },
+            copy: {
+              type: "object",
+              description:
+                "video-demo-reel Remotion copy props (domain, promise, cta, introLine, middleBeats).",
+            },
             team: {
               type: "object",
               properties: {
