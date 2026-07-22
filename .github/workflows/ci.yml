@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 on:
   push:
     branches: [main]
@@ -21,7 +21,9 @@ jobs:
           bun install --frozen-lockfile
           bun run build
           npm pack
-          mv majico-sdk-*.tgz ../majico-sdk.tgz
+          tarball="$(ls -1 majico-sdk-*.tgz | head -n 1)"
+          test -n "$tarball"
+          cp "$tarball" "${GITHUB_WORKSPACE}/majico-sdk.tgz"
       - run: bun install --frozen-lockfile
       - run: bun add ./majico-sdk.tgz
       - run: bun run typecheck
