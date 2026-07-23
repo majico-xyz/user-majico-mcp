@@ -262,6 +262,36 @@ describe("handleMajicoToolCall", () => {
     );
   });
 
+  it("delete_project calls user-scoped MCP projects DELETE with confirm", async () => {
+    process.env.MAJICO_PROJECT_ID = PROJECT_ID;
+    process.env.MAJICO_API_KEY = "env-key";
+    process.env.MAJICO_API_URL = "http://127.0.0.1:3001";
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ ok: true, projectId: PROJECT_ID }),
+        { status: 200 }
+      )
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const result = await handleMajicoToolCall("delete_project", {
+      projectId: PROJECT_ID,
+      confirm: true,
+    });
+    expect(result.isError).toBeFalsy();
+    const body = JSON.parse(result.content[0]?.text ?? "{}") as {
+      ok: boolean;
+      projectId: string;
+    };
+    expect(body.ok).toBe(true);
+    expect(body.projectId).toBe(PROJECT_ID);
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/mcp/projects"),
+      expect.objectContaining({ method: "DELETE" })
+    );
+  });
+
   it("get_project_api_key calls /api-key", async () => {
     process.env.MAJICO_PROJECT_ID = PROJECT_ID;
     process.env.MAJICO_API_KEY = "env-key";
