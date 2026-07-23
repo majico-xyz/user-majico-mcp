@@ -32,6 +32,7 @@ const BRANDING_TOOL_NAMES = new Set([
   "submit_brief",
   "list_projects",
   "create_project",
+  "delete_project",
   "get_project_api_key",
   "mint_project_api_key",
   "list_palette_options",

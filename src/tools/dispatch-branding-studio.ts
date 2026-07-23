@@ -103,6 +103,16 @@ export async function dispatchBrandingStudioTool(
       if (!projectName) return toolError("name is required.");
       return toolJson(await client.projects.create(projectName));
     }
+    case "delete_project": {
+      const projectId = requireStringArg(args, "projectId");
+      if (!projectId) return toolError("projectId is required.");
+      if (args?.confirm !== true) {
+        return toolError("confirm must be true to soft-delete the project.");
+      }
+      return toolJson(
+        await client.projects.delete(projectId, { confirm: true })
+      );
+    }
     case "get_project_api_key":
     case "mint_project_api_key": {
       const rotate = args?.rotate === true;

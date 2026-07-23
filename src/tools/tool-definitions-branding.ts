@@ -226,6 +226,26 @@ export const BRANDING_TOOL_DEFINITIONS: Tool[] = [
     },
   },
   {
+    name: "delete_project",
+    description:
+      "Soft-delete a Majico branding project owned by the authenticated user. Anonymizes the project and brief PII; the row remains for analytics/caps. Requires confirm:true. Ask the user before deleting. Prefer list_projects to confirm the id.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...optionalCredentialProps,
+        projectId: {
+          type: "string",
+          description: "Project UUID to soft-delete (required).",
+        },
+        confirm: {
+          type: "boolean",
+          description: "Must be true to proceed with soft-delete.",
+        },
+      },
+      required: ["projectId", "confirm"],
+    },
+  },
+  {
     name: "get_project_api_key",
     description:
       "After OAuth Connect: mint (if missing) or return the reusable project API key for this projectId. Agents store it in gitignored .env.majico / MCP headers (Bearer + X-Majico-Project-Id) and call tools without OAuth thereafter. Optional rotate:true invalidates the previous key. Alias: mint_project_api_key." +
